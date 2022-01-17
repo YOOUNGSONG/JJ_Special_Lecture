@@ -1,0 +1,91 @@
+import turtle as t
+import random
+
+
+def goto(x, y):         # move turtle without drawing
+    t.up()
+    t.goto(x, y)
+    t.down()
+
+
+def circle(radius):     # draw filled circle
+    t.begin_fill()
+    t.circle(radius)
+    t.end_fill()
+
+
+def star(x, y, size):   # parameter: star's coordinates, size
+    length = size * 7
+    goto(x, y)
+    t.begin_fill()
+    for i in range(5):  # print star
+        t.forward(length)
+        t.right(144)
+    t.end_fill()
+
+
+def moon(x, y):     # parameter: moon's coordinates
+    t.color(247, 206, 70)  # moon color
+    r = 50
+    goto(x, y)
+    circle(r)
+    goto(x-r*0.866, y+r*0.5)
+    t.color(0, 0, 0)  # background color for shadow
+    circle(r)
+
+
+def cloud(x, y, horlen, verlen):    # parameter: cloud's coordinates (x, y), cloud's horizontal and vertical length
+    # using circles
+    t.color(155, 155, 155)
+    r = 30
+    for j in range(verlen):
+        for i in range(horlen):
+            goto(x+i*r, y-j*r)
+            circle(r)
+        if j == verlen-1:
+            break
+        goto(x+horlen*r, y-0.5*r - j*r)
+        circle(r)
+        goto(x-r, y-0.5*r - j*r)
+        circle(r)
+
+
+def color():    # set stars' color
+    # yellow scale
+    r = random.randint(100, 255)
+    g = r
+    b = random.randint(30, 100)
+    t.color(r, g, b)
+
+
+def end():  # stop end screen
+    t.speed(1)
+    t.up()
+    t.forward(1000000)
+
+
+def setting():  # basic setting
+    t.colormode(255)
+    t.screensize(500, 500)
+    t.bgcolor(0, 0, 0)
+    t.speed(0)
+    t.hideturtle()
+
+
+def main():
+    setting()
+    n = int(input("Number of Star?  "))
+    moon(-300, 200)
+
+    for i in range(n):
+        color()
+        star(random.randint(-300, 300), random.randint(-300, 300), random.randint(3, 6))
+
+    cloud(250, 200, 2, 2)
+    cloud(-150, -100, random.randint(2, 4), random.randint(2, 4))
+
+    end()
+
+
+if __name__ == "__main__":
+    main()
