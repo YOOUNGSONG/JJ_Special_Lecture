@@ -1,0 +1,194 @@
+from tkinter import *
+import turtle as t
+import random
+import time
+import sys  # for exit(0)
+
+numberList = [] # random number list
+n = 10  # range of random number
+num = 5  # amount of random number
+score = 0
+
+
+def result():   # compare input and answer and show result
+    global score, numberList
+    score = 0
+    createWindow()
+    makeBlank("TOP")
+
+    # converse input data's form to int list
+    resultTemp = inputText.split(",")
+    resultTempString = "".join(resultTemp)
+    resultTempText = resultTempString.split(" ")
+    resultText = list(map(int, resultTempText))
+    resultText.sort()
+    numberList.sort()
+
+    # compute result
+    try:
+        for i in range(num):
+            trash = numberList[i] == resultText[i]
+    except IndexError:  # check amount of input data
+        pass
+    else:
+        for i in range(num):
+            if numberList[i] == resultText[i]:
+                score += 1
+
+    # show result
+    if score == num:
+        Label(Screen, text=f"You Win! your score: 100", font="Arial, 30").pack(side=TOP)
+    else:
+        Label(Screen, text=f"You Lose. your score: {score*100/num}/100", font="Arial, 30").pack(side=TOP)
+
+    makeBlank("TOP")
+    Label(Screen, text=f"Answer is\n{numberList}", font="Arial, 30").pack(side=TOP)
+    Label(Screen, text=f"and your answer is\n{resultText}", font="Arial, 30").pack(side=TOP)
+    makeBlank("TOP")
+
+    if __name__ == "__main__":
+        Button(Screen, text="Again", command=main, font="Arial, 30").pack(side=TOP)
+        Button(Screen, text="QUIT", command=end, font="Arial, 30").pack(side=TOP)
+
+
+def inputNumber():      # make screen with input entry
+    def confirmed():    # when button is pressed
+        global inputText
+        inputText = tempText.get()
+
+        if __name__ == "__main__":
+            result()
+
+    global Screen
+
+    Screen = Tk()
+    Screen.title("NumberMemorizingGame")
+    Screen.geometry("700x600+400+125")
+    Screen.resizable(False, False)
+
+    makeBlank("TOP")
+    Label(Screen, text="What's your answer?", font="Arial, 30").pack(side=TOP)
+    Label(Screen, text="You must insert 'space' after 'comma'").pack(side=TOP)
+    tempText = Entry(Screen, width=30)
+    tempText.pack(side=TOP)
+    Button(Screen, text="confirm", command=confirmed, font="Arial, 30").pack(side=TOP)
+
+
+def printNumber():  # show random number
+    Screen.destroy()
+    t.hideturtle()
+    for i in range(num):
+        t.write(numberList[i], False, "center", ("Arial", 70, "bold"))
+        time.sleep(1)
+        t.clear()
+
+    if __name__ == "__main__":
+        inputNumber()
+
+
+def setNumber():    # set random number in numberList
+    global numberList
+    numberList = []
+    for i in range(num):
+        numberList.append(random.randint(1, n))
+
+    if __name__ == "__main__":
+        print(numberList)
+        printNumber()
+
+
+# difficulty: easy, medium, hard
+def easy():
+    global n, num
+    n = 9
+    num = 3
+    if __name__ == "__main__":
+        setNumber()
+
+
+def medium():
+    global n, num
+    n = 50
+    num = 5
+    if __name__ == "__main__":
+        setNumber()
+
+
+def hard():
+    global n, num
+    n = 99
+    num = 7
+    if __name__ == "__main__":
+        setNumber()
+
+
+def makeBlank(dir):  # insert black label
+    if dir == "TOP":
+        Label(Screen, text="\n", font="Arial, 20").pack(side=TOP)
+    elif dir == "BOTTOM":
+        Label(Screen, text="\n", font="Arial, 20").pack(side=BOTTOM)
+    elif dir == "LEFT":
+        Label(Screen, text="\n", font="Arial, 20").pack(side=LEFT)
+    elif dir == "RIGHT":
+        Label(Screen, text="\n", font="Arial, 20").pack(side=RIGHT)
+
+
+def setDifficulty():  # screen choosing difficulty
+    createWindow()
+
+    Label(Screen, text="Choose your difficulty!", font="Arial, 30").pack(side=TOP)
+    makeBlank("TOP")
+
+    Button(Screen, text="EASY", command=easy, font="Arial, 40").pack(side=TOP)
+    makeBlank("TOP")
+    Button(Screen, text="MEDIUM", command=medium, font="Arial, 40").pack(side=TOP)
+    makeBlank("TOP")
+    Button(Screen, text="HARD", command=hard, font="Arial, 40").pack(side=TOP)
+
+
+def end():  # for successful finishing
+    Screen.destroy()
+    sys.exit(0)
+
+
+def createWindow():  # make GUI screen
+    global Screen
+
+    # if Screen is defined, then destroy Screen
+    try:
+        Screen
+    except NameError:
+        pass
+    else:
+        Screen.destroy()
+
+    Screen = Tk()
+    Screen.title("NumberMemorizingGame")
+    Screen.geometry("700x600+400+125")
+    Screen.resizable(False, False)
+
+
+def initialScreen():  # design front screen
+    createWindow()
+    # blank Label for design
+    Label(Screen, text="\n\n\n", font="Arial, 30").pack(side=TOP)
+    Label(Screen, text="\n", font="Arial, 30").pack(side=BOTTOM)
+
+    # print WELCOME sentence
+    Label(Screen, text="Let's start memorizing number game!\npress START button to play game", font="Arial, 30").pack(
+        side=TOP)
+
+    # set START and QUIT button
+    if __name__ == "__main__":
+        Button(Screen, text="QUIT", command=end, font="Arial, 40").pack(side=BOTTOM)
+        Button(Screen, text="START", command=setDifficulty, font="Arial, 40").pack(side=BOTTOM)
+
+    Screen.mainloop()
+
+
+def main():
+    initialScreen()
+
+
+if __name__ == "__main__":
+    main()
