@@ -1,0 +1,165 @@
+from tkinter import *
+from functools import partial
+import sys
+
+menu = {1: "coke", 2: "juice", 3: "milk", 4: "coffee", -1: "reset", -2: "confirm"}
+price = {"coke": 1.0, "juice": 1.5, "milk": 0.5, "coffee": 2.0}
+orderlist = [0] * 4  # contain amount of menu
+totalPrice = 0.0
+result = 0
+
+
+def end():
+    createWindow()
+    Label(machine, text="Thank You!", font="Roboto, 30").place(x=210, y=100)
+    Label(machine, text=f"Change is {result - totalPrice}$", font="Roboto, 30").place(x=160, y=300)
+    Button(machine, command=main, text="Do you want anything else?", font="Roboto, 30").place(x=40, y=400)
+    Button(machine, command=partial(sys.exit, 0), text="QUIT", font="Roboto, 25").place(x=250, y=500)
+
+
+def receipt():  # write receipt through file output
+    f = open("receipt.txt", "a")
+    printFormat = "%-10s%-10s%-10s%-10s\n"  # form of receipt
+    printOut = printFormat % ("No.", "menu", "quantity", "price")
+    f.write("------------- Receipt -------------\n")
+    index = 1
+    for i in range(4):
+        if orderlist[i] != 0:
+            name = menu.get(i + 1)
+            quantity = orderlist[i]
+            totPrice = price.get(menu.get(i + 1)) * quantity
+            printOut += printFormat % (index, name, quantity, totPrice)
+            index += 1
+    f.write(printOut)
+    f.write("-----------------------------------\n")
+    f.write(f"Total: {totalPrice}$\n")
+    f.write(f"Cash: {result}$\n")
+    f.write(f"Change: {result - totalPrice}$\n")
+    f.close()
+    end()
+
+
+def checkReceipt():  # check whether customer wants receipt
+    createWindow()
+    Label(machine, text="Do you need receipt?", font="Roboto, 30").place(x=110, y=100)
+    Button(machine, text="YES", command=receipt, font="Roboto, 40").place(x=100, y=300)
+    Button(machine, text="NO", command=end, font="Roboto, 40").place(x=380, y=300)
+
+
+def pay():
+    def confirmed():  # for confirm button
+        global result
+        # converse input to int result
+        try:
+            float(enterText.get())
+        except ValueError:
+            warning.configure(text="Please type amount of money")
+            return
+        result = float(enterText.get())
+        print(result, "\n")
+        if result < totalPrice:
+            warning.configure(text="You must pay more money")
+        else:
+            checkReceipt()
+
+    # show total price and input customer's money
+    createWindow()
+    Label(machine, text=f"you must pay {totalPrice}$", font="Roboto, 20").place(x=200, y=50)
+    Label(machine, text=f"type money and press 'enter'", font="Roboto, 20").place(x=130, y=100)
+    warning = Label(machine, text=" ", font="Roboto, 20")
+    warning.place(x=140, y=370)
+    enterText = Entry(machine, width=50)
+    enterText.place(x=140, y=200)
+    Button(machine, text="enter", command=confirmed, font="Arial, 30").place(x=250, y=250)
+    Button(machine, text="RESET", command=partial(switch, -2), font="Roboto, 30").place(x=240, y=430)
+
+
+def check():
+    createWindow()
+    temp = 1
+    for i in range(4):  # show final choice
+        if orderlist[i] != 0:
+            name = menu.get(i + 1)
+            quantity = orderlist[i]
+            Label(machine, text=f"{name}: {quantity}", font="Roboto, 20").place(x=250, y=50 * temp - 30)
+            temp += 1
+    Label(machine, text=f"total amount of your order is {totalPrice}$", font="Roboto, 20").place(x=100,
+                                                                                                 y=50 * temp - 30)
+    Button(machine, text="RESET", command=partial(switch, -2), font="Roboto, 30").place(x=70, y=350)
+    Button(machine, text="confirm", command=pay, font="Roboto, 30").place(x=400, y=350)
+
+
+def switch(case):  # switch case in python
+    global orderlist, totalPrice
+
+    if case > 0:
+        # check through console
+        print(f"you ordered {menu.get(case)}!")
+        print(f"price is {price.get(menu.get(case))}\n")
+        popOrder.configure(text=f"you ordered {menu.get(case)}!")
+        orderlist[case - 1] += 1
+        totalPrice = totalPrice + float(price.get(menu.get(case)))
+    else:
+        if case == -1 or case == -2:
+            print("Reseted\n")
+            orderlist = [0] * 4
+            totalPrice = 0
+            if case == -2:
+                designVendingMachine()
+            else:
+                popOrder.configure(text=" ")
+        elif case == -3:
+            if totalPrice == 0:
+                popOrder.configure(text="Please choose drink!")
+                return
+            print("Done")
+            check()
+
+    print(orderlist)
+    print(totalPrice, "\n")
+
+
+def createWindow():  # create tkinter GUI
+    global machine
+    try:
+        machine
+    except NameError:
+        pass
+    else:
+        machine.destroy()
+
+    machine = Tk()
+    machine.title("Vending Machine")
+    machine.geometry("630x600+400+125")
+    machine.resizable(False, False)
+
+
+def designVendingMachine():  # design screen of vending machine
+    global popOrder
+    createWindow()
+    Label(machine, text="choose your menu", font="Roboto, 30").place(x=130, y=50)
+    Button(machine, text="coke: 1.0$", command=partial(switch, 1), font="Roboto, 30").place(x=50, y=150)
+    Button(machine, text="juice: 1.5$", command=partial(switch, 2), font="Roboto, 30").place(x=330, y=150)
+    Button(machine, text="milk: 0.5$", command=partial(switch, 3), font="Roboto, 30").place(x=50, y=250)
+    Button(machine, text="coffee: 2.0$", command=partial(switch, 4), font="Roboto, 30").place(x=320, y=250)
+    Button(machine, text="RESET", command=partial(switch, -1), font="Roboto, 30").place(x=70, y=350)
+    Button(machine, text="confirm", command=partial(switch, -3), font="Roboto, 30").place(x=350, y=350)
+    popOrder = Label(machine, text=f" ", font="Roboto, 30")
+    popOrder.place(x=130, y=470)
+
+
+def main():
+    # reset receipt
+    global orderlist, totalPrice
+    orderlist = [0]*4
+    totalPrice = 0
+
+    designVendingMachine()
+    machine.mainloop()
+
+
+if __name__ == "__main__":
+    f = open("receipt.txt", "w")
+    f.write("")
+    f.close()
+    main()
